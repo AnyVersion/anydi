@@ -27,6 +27,9 @@ class DiContainer {
     }
     getData(token) {
         var _a;
+        if (!(token instanceof token_1.default)) {
+            token = token_1.default.GetOrCreate(token);
+        }
         if (this.dataMap.has(token)) {
             return this.dataMap.get(token);
         }

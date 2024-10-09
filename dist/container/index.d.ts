@@ -16,7 +16,7 @@ export default class DiContainer {
         }[];
     });
     setParent(parent: this): void;
-    getData(token: DiToken): any;
+    getData(token: DiToken | any): any;
     private resolve;
     factory(injection: DiInjection): any;
     track<T>(fn: () => T): T;
