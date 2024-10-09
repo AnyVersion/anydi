@@ -47,7 +47,7 @@ class DiContainer {
         if (data !== undefined) {
             return data;
         }
-        const value = this.resolve(token) || injection.factory();
+        const value = this.track(() => this.resolve(token) || injection.factory());
         this.setData(token, value);
         return value;
     }

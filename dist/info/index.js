@@ -103,7 +103,7 @@ class DiInfo {
         if (injection.optional) {
             return this.container.getData(token);
         }
-        return this.container.track(() => this.container.factory(injection));
+        return this.container.factory(injection);
     }
     destroy() {
         if (this.isDestroyed)
