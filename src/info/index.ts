@@ -100,7 +100,7 @@ export default class DiInfo {
     if (injection.optional) {
       return this.container.getData(token)
     }
-    return this.container.track(() => this.container.factory(injection))
+    return this.container.factory(injection)
   }
 
   private isDestroyed = false
