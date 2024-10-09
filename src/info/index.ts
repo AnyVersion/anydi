@@ -23,7 +23,9 @@ export default class DiInfo {
   static Delete(ins: Data) {
     this.data.delete(ins)
   }
-
+  static GetContainer(ins: Data) {
+    return this.Get(ins)?.container
+  }
   private container
   private injections = new Map<string, DiInjection>()
   private destroyCallbacks: Function[]

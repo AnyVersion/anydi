@@ -4,6 +4,9 @@ import DiToken from "../token"
 import DiTrack from "../track"
 
 export default class DiContainer {
+  static Get(instance: any) {
+    return DiInfo.GetContainer(instance)
+  }
   static id = 0
   private dataMap = new WeakMap<DiToken, any>()
   private dataSet = new Set<any>()
