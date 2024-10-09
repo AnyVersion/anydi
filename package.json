@@ -1,0 +1,23 @@
+{
+  "name": "anydi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf ./dist && tsc -p ./src/tsconfig.json",
+    "demo": "node -r ts-swc-register ./demo/index.ts"
+  },
+  "author": "gityoog",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gityoog/anydi.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "ts-swc-register": "^1.3.0"
+  }
+}
