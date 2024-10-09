@@ -24,6 +24,10 @@ class DiInfo {
     static Delete(ins) {
         this.data.delete(ins);
     }
+    static GetContainer(ins) {
+        var _a;
+        return (_a = this.Get(ins)) === null || _a === void 0 ? void 0 : _a.container;
+    }
     constructor(ins) {
         this.ins = ins;
         this.injections = new Map();

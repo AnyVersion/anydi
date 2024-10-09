@@ -1,3 +1,4 @@
+import DiContainer from "../container";
 type Data = any;
 export default class DiInfo {
     private ins;
@@ -5,6 +6,7 @@ export default class DiInfo {
     static Get(ins: Data): DiInfo | undefined;
     static GetOrCreate(ins: Data): DiInfo;
     static Delete(ins: Data): void;
+    static GetContainer(ins: Data): DiContainer | undefined;
     private container;
     private injections;
     private destroyCallbacks;

@@ -1,6 +1,7 @@
 import DiInjection from "../injection";
 import DiToken from "../token";
 export default class DiContainer {
+    static Get(instance: any): DiContainer | undefined;
     static id: number;
     private dataMap;
     private dataSet;

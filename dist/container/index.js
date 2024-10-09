@@ -7,6 +7,9 @@ const info_1 = __importDefault(require("../info"));
 const token_1 = __importDefault(require("../token"));
 const track_1 = __importDefault(require("../track"));
 class DiContainer {
+    static Get(instance) {
+        return info_1.default.GetContainer(instance);
+    }
     constructor({ providers } = {}) {
         this.dataMap = new WeakMap();
         this.dataSet = new Set();
