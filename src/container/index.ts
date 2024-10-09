@@ -33,7 +33,10 @@ export default class DiContainer {
     this.parent = parent
   }
 
-  getData(token: DiToken): any {
+  getData(token: DiToken | any): any {
+    if (!(token instanceof DiToken)) {
+      token = DiToken.GetOrCreate(token)
+    }
     if (this.dataMap.has(token)) {
       return this.dataMap.get(token)!
     } else {
