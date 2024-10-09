@@ -59,7 +59,8 @@ export default class DiInfo {
     if (this.isInitialized) return
     this.isInitialized = true
     this.injections.forEach((injection, key) => {
-      if (!Object.getOwnPropertyDescriptor(this.ins, key)) {
+      const descriptor = Object.getOwnPropertyDescriptor(this.ins, key)
+      if (!descriptor || (!descriptor.get && !descriptor.set && descriptor.value === undefined)) {
         if (injection.optional) {
           Object.defineProperty(this.ins, key, {
             get: () => this.getData(key),
