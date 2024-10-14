@@ -7,6 +7,7 @@ const container_1 = __importDefault(require("../container"));
 const metedata_1 = __importDefault(require("../metedata"));
 const track_1 = __importDefault(require("../track"));
 const utils_1 = require("../utils");
+const config_1 = __importDefault(require("../config"));
 class DiInfo {
     static Get(ins) {
         return this.data.get(ins);
@@ -21,26 +22,38 @@ class DiInfo {
             return info;
         }
     }
+    static Create(ins, prototypes) {
+        if (this.data.has(ins)) {
+            throw new Error('Instance already created');
+        }
+        const info = new this(ins, prototypes);
+        this.data.set(ins, info);
+        return info;
+    }
     static Delete(ins) {
         this.data.delete(ins);
     }
     static GetContainer(ins) {
-        var _a;
-        return (_a = this.Get(ins)) === null || _a === void 0 ? void 0 : _a.container;
+        return this.GetOrCreate(ins).container;
     }
-    constructor(ins) {
+    constructor(ins, prototypes = (0, utils_1.getPrototypeChain)(ins)) {
         this.ins = ins;
         this.injections = new Map();
         this.isInitialized = false;
         this.isDestroyed = false;
-        const container = track_1.default.take();
-        if (!container) {
-            throw new Error(`'${ins.constructor.name}' must be created with container`);
-        }
-        const prototypes = (0, utils_1.getPrototypeChain)(ins);
         const isService = metedata_1.default.isService(prototypes);
         if (!isService) {
             throw new Error(`'${ins.constructor.name}' must be decorated with @Service()`);
+        }
+        let container = track_1.default.take();
+        if (!container) {
+            const root = metedata_1.default.getRoot(prototypes);
+            if (root) {
+                container = new container_1.default(...root);
+            }
+            else {
+                throw new Error(`'${ins.constructor.name}' must be created with container`);
+            }
         }
         const containerOptions = metedata_1.default.getContainerOptions(prototypes);
         if (containerOptions) {
@@ -71,7 +84,7 @@ class DiInfo {
                         configurable: true
                     });
                 }
-                else if (injection.lazy) {
+                else if (injection.lazy || config_1.default.defaultLazy) {
                     Object.defineProperty(this.ins, key, {
                         get: () => this.getData(key),
                         set: (value) => {

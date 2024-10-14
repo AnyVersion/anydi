@@ -5,12 +5,13 @@ export default class DiInfo {
     static data: WeakMap<any, DiInfo>;
     static Get(ins: Data): DiInfo | undefined;
     static GetOrCreate(ins: Data): DiInfo;
+    static Create(ins: Data, prototypes?: Object[]): DiInfo;
     static Delete(ins: Data): void;
-    static GetContainer(ins: Data): DiContainer | undefined;
+    static GetContainer(ins: Data): DiContainer;
     private container;
     private injections;
     private destroyCallbacks;
-    constructor(ins: Data);
+    constructor(ins: Data, prototypes?: Object[]);
     private isInitialized;
     init(): void;
     track<T>(fn: () => T): T;

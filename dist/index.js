@@ -12,7 +12,8 @@ exports.Service = Service;
 exports.Container = Container;
 exports.Destroy = Destroy;
 exports.DiFrom = DiFrom;
-exports.DiRoot = DiRoot;
+exports.Root = Root;
+exports.setConfig = setConfig;
 const container_1 = __importDefault(require("./container"));
 exports.DiContainer = container_1.default;
 const injection_1 = __importDefault(require("./injection"));
@@ -21,6 +22,7 @@ const info_1 = __importDefault(require("./info"));
 exports.DiInfo = info_1.default;
 const metedata_1 = __importDefault(require("./metedata"));
 exports.DiMetadata = metedata_1.default;
+const config_1 = __importDefault(require("./config"));
 function Inject(token) {
     return function (prototype, key) {
         return metedata_1.default.defineInjection(prototype, key, new injection_1.default({
@@ -31,7 +33,8 @@ function Inject(token) {
 function InjectRef(ref) {
     return function (prototype, key) {
         return metedata_1.default.defineInjection(prototype, key, new injection_1.default({
-            ref
+            ref,
+            lazy: true
         }));
     };
 }
@@ -84,12 +87,30 @@ function Destroy(prototype, propertyKey, descriptor) {
     };
 }
 function DiFrom(instance) {
+    const container = container_1.default.Get(instance);
     return {
-        for: (fn) => info_1.default.GetOrCreate(instance).track(fn)
+        for: (fn) => container.track(fn),
+        add: (fn, token) => {
+            const data = container.track(fn);
+            if (token) {
+                container.setData(token, data);
+            }
+            else {
+                container.addData(data);
+            }
+            return data;
+        },
+        factory: (ctor) => {
+            return container.factory(ctor);
+        }
     };
 }
-function DiRoot(...args) {
-    return {
-        for: (fn) => new container_1.default(...args).track(fn)
+function Root(...args) {
+    return function (target) {
+        metedata_1.default.defineRoot(target.prototype, args);
+        return target;
     };
+}
+function setConfig(newConfig) {
+    Object.assign(config_1.default, newConfig);
 }

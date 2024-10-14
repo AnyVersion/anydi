@@ -9,7 +9,8 @@ const symbol = {
     container: Symbol('container'),
     injection: Symbol('injection'),
     service: Symbol('service'),
-    destroy: Symbol('destroy')
+    destroy: Symbol('destroy'),
+    root: Symbol('root'),
 };
 class DiMetadata {
     static defineContainerOptions(prototype, options) {
@@ -19,6 +20,18 @@ class DiMetadata {
         const properties = Array.isArray(prototype) ? prototype : [prototype];
         for (const property of properties) {
             const options = Reflect.getOwnMetadata(symbol.container, property);
+            if (options) {
+                return options;
+            }
+        }
+    }
+    static defineRoot(prototype, options) {
+        Reflect.defineMetadata(symbol.root, options, prototype);
+    }
+    static getRoot(prototype) {
+        const properties = Array.isArray(prototype) ? prototype : [prototype];
+        for (const property of properties) {
+            const options = Reflect.getOwnMetadata(symbol.root, property);
             if (options) {
                 return options;
             }

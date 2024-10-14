@@ -2,6 +2,7 @@ import DiInjection from "../injection"
 import DiInfo from "../info"
 import DiToken from "../token"
 import DiTrack from "../track"
+import { Constructor } from "../utils"
 
 export default class DiContainer {
   static Get(instance: any) {
@@ -11,7 +12,7 @@ export default class DiContainer {
   private dataMap = new WeakMap<DiToken, any>()
   private dataSet = new Set<any>()
   private resolvers = new WeakMap<DiToken, () => any>()
-
+  private creating = new WeakMap<DiToken, boolean>()
   private children = new Set<this>()
   private parent?: this
 
@@ -33,10 +34,8 @@ export default class DiContainer {
     this.parent = parent
   }
 
-  getData(token: DiToken | any): any {
-    if (!(token instanceof DiToken)) {
-      token = DiToken.GetOrCreate(token)
-    }
+  getData(arg: DiToken | unknown): any {
+    const token = arg instanceof DiToken ? arg : DiToken.GetOrCreate(arg)
     if (this.dataMap.has(token)) {
       return this.dataMap.get(token)!
     } else {
@@ -51,14 +50,21 @@ export default class DiContainer {
     return this.parent?.resolve(token)
   }
 
-  factory(injection: DiInjection) {
+  factory<T>(arg: DiInjection | T): T extends Constructor ? InstanceType<T> : any {
+    const injection = arg instanceof DiInjection ? arg : new DiInjection({ token: arg })
     const token = injection.getToken()
     const data = this.getData(token)
     if (data !== undefined) {
       return data
     }
+    if (this.creating.get(token)) {
+      console.warn('Circular dependency with:', token.value)
+      return undefined!
+    }
+    this.creating.set(token, true)
     const value = this.track(() => this.resolve(token) || injection.factory())
     this.setData(token, value)
+    this.creating.delete(token)
     return value
   }
 
@@ -71,15 +77,23 @@ export default class DiContainer {
     }
   }
 
-  setData<T>(token: DiToken, data: T) {
+  setData<T>(arg: DiToken | unknown, data: T) {
+    const token = arg instanceof DiToken ? arg : DiToken.GetOrCreate(arg)
     if (!this.dataMap.has(token)) {
       this.dataMap.set(token, data)
       this.addData(data)
+      this.notify(token, data)
     } else {
       if (this.dataMap.get(token) !== data) {
         throw new Error('Different values ​​in the container')
       }
     }
+  }
+
+  notify<T>(token: DiToken, data: T) {
+    this.children.forEach(container => {
+      container.notify(token, data)
+    })
   }
 
   addData<T>(data: T) {
@@ -98,6 +112,7 @@ export default class DiContainer {
       DiInfo.Get(data)?.destroy()
     })
     this.dataSet.clear()
+    this.creating = null!
     this.dataSet = null!
     this.dataMap = null!
     this.parent = null!

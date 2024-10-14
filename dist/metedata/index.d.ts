@@ -10,6 +10,13 @@ export default class DiMetadata {
             resolver: () => any;
         }[];
     } | undefined)?] | undefined;
+    static defineRoot(prototype: Object, options: ContainerOptions): void;
+    static getRoot(prototype: Object | Object[]): [({
+        providers?: {
+            token: any;
+            resolver: () => any;
+        }[];
+    } | undefined)?] | undefined;
     static defineService(prototype: Object): void;
     static isService(prototype: Object | Object[]): boolean;
     static defineInjection(prototype: Object, key: string, injection: DiInjection): void;

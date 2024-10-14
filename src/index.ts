@@ -2,7 +2,8 @@ import DiContainer from "./container"
 import DiInjection from "./injection"
 import DiInfo from "./info"
 import DiMetadata from "./metedata"
-import { AllConstructors } from "./utils"
+import { AllConstructors, Constructor } from "./utils"
+import Config from './config'
 
 export function Inject(token?: any) {
   return function <T extends Object>(prototype: T, key: string) {
@@ -15,10 +16,13 @@ export function Inject(token?: any) {
 export function InjectRef(ref: () => any) {
   return function <T extends Object>(prototype: T, key: string) {
     return DiMetadata.defineInjection(prototype, key, new DiInjection({
-      ref
+      ref,
+      lazy: true
     }))
   }
 }
+
+export type ToType<T> = T
 
 export function Optional({ token, ref }: {
   token?: any
@@ -79,15 +83,33 @@ export function Destroy<T extends Object>(prototype: T, propertyKey: string, des
 }
 
 export function DiFrom(instance: any) {
+  const container = DiContainer.Get(instance)
   return {
-    for: <T>(fn: () => T) => DiInfo.GetOrCreate(instance).track(fn)
+    for: <T>(fn: () => T) => container.track(fn),
+    add: <T>(fn: () => T, token?: unknown) => {
+      const data = container.track(fn)
+      if (token) {
+        container.setData(token, data)
+      } else {
+        container.addData(data)
+      }
+      return data
+    },
+    factory: <T extends Constructor>(ctor: T) => {
+      return container.factory(ctor) as InstanceType<T>
+    }
   }
 }
 
-export function DiRoot(...args: ConstructorParameters<typeof DiContainer>) {
-  return {
-    for: <T>(fn: () => T) => new DiContainer(...args).track(fn)
+export function Root(...args: ConstructorParameters<typeof DiContainer>) {
+  return function <T extends AllConstructors>(target: T) {
+    DiMetadata.defineRoot(target.prototype, args)
+    return target
   }
+}
+
+export function setConfig(newConfig: Partial<typeof Config>) {
+  Object.assign(Config, newConfig)
 }
 
 export {

@@ -7,7 +7,8 @@ const symbol = {
   container: Symbol('container'),
   injection: Symbol('injection'),
   service: Symbol('service'),
-  destroy: Symbol('destroy')
+  destroy: Symbol('destroy'),
+  root: Symbol('root'),
 }
 type ContainerOptions = ConstructorParameters<typeof DiContainer>
 
@@ -24,6 +25,20 @@ export default class DiMetadata {
       }
     }
   }
+
+  static defineRoot(prototype: Object, options: ContainerOptions) {
+    Reflect.defineMetadata(symbol.root, options, prototype)
+  }
+  static getRoot(prototype: Object | Object[]) {
+    const properties = Array.isArray(prototype) ? prototype : [prototype]
+    for (const property of properties) {
+      const options: ContainerOptions = Reflect.getOwnMetadata(symbol.root, property)
+      if (options) {
+        return options
+      }
+    }
+  }
+
   static defineService(prototype: Object) {
     Reflect.defineMetadata(symbol.service, true, prototype)
   }
